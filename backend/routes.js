@@ -1,7 +1,7 @@
 const routes = require("express").Router();
 const Fuse = require("fuse.js");
 
-const data = require("./rushing.json");
+const rushing = require("./rushing.json");
 
 routes.get("/health-check", async (req, res) => {
   res.json({
@@ -9,17 +9,27 @@ routes.get("/health-check", async (req, res) => {
   });
 });
 
-function searchPlayers(query) {
-  const fuse = new Fuse(data, {
+function searchPlayers(search) {
+  const fuse = new Fuse(rushing, {
     keys: ["Player", "Yds", "Lng", "TD"],
     threshold: 0.3
   });
-  return fuse.search(query);
+  return fuse.search(search);
+}
+
+function paginate({ data, entries, page } = {}) {
+  const dataSubset = [];
+
+  for (let i = 0; i < entries; i++) {
+    const dataIndex = (page - 1) * entries + i;
+    if (data[dataIndex]) dataSubset.push(data[dataIndex]);
+  }
+  return dataSubset;
 }
 
 routes.get("/rushing", async (req, res) => {
   let { entries, page = 1, search } = req.query;
-  let players = data;
+  let players = rushing;
 
   const maxPage = Math.ceil(players.length / entries);
 
@@ -28,21 +38,15 @@ routes.get("/rushing", async (req, res) => {
     return;
   }
 
+  if (page > maxPage) page = maxPage;
+
   if (search) {
     players = searchPlayers(search);
   } else {
-    const subsetPlayers = [];
-
-    if (page > maxPage) page = maxPage;
-
-    for (let i = 0; i < entries; i++) {
-      const playerIndex = (page - 1) * entries + i;
-      if (players[playerIndex]) subsetPlayers.push(players[playerIndex]);
-    }
-    players = subsetPlayers;
+    players = paginate({ data: players, entries, page })
   }
 
-  res.json({ page, maxPage, players });
+  res.json({ page: Number(page), maxPage, players });
 });
 
 module.exports = routes;

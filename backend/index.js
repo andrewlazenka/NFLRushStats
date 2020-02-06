@@ -4,7 +4,7 @@ const cors = require('cors');
 
 const routes = require('./routes')
 
-const graphQLServer = express();
+const app = express();
 const corsOptions = {
   origin: function (_, callback) {
     callback(null, true)
@@ -13,13 +13,15 @@ const corsOptions = {
   optionsSuccessStatus: 200
 }
 
-graphQLServer.use(cors(corsOptions))
-graphQLServer.options('*', cors())
-graphQLServer.use(bodyParser.json())
-graphQLServer.use(bodyParser.urlencoded({ extended: true }))
+app.use(cors(corsOptions))
+app.options('*', cors())
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
 
-graphQLServer.use('/', routes);
+app.use('/', routes);
 
-graphQLServer.listen(8000, () =>
+app.listen(8000, () =>
   console.log(`Application is now running on port 8000`)
 )
+
+module.exports = app

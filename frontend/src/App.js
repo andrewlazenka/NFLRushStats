@@ -1,51 +1,29 @@
 import React from "react";
-import axios from "axios";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+
+import CSV from "./CSV";
+import useDebounce from "./useDebounce";
+import { fetchPlayers } from "./api";
 
 import "./index.css";
 
-async function fetchPlayers({ entries = 10, page = 1, search = "" } = {}) {
-  return await axios.get("http://localhost:8000/rushing", {
-    params: { entries, page, search }
-  });
+function formatCellData(cell) {
+  let cellData = cell;
+  if (cellData && typeof cellData === "string") {
+    if (cellData.includes("T")) {
+      cellData = cellData.replace("T", "");
+    }
+    if (cellData.includes(",")) {
+      cellData = cellData.replace(",", "");
+    }
+  }
+  return cellData;
 }
 
-function useDebounce(value, delay) {
-  const [debouncedValue, setDebouncedValue] = React.useState(value);
-
-  React.useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value]);
-
-  return debouncedValue;
-}
-
-function sortResults(players, key, sortOrder) {
+const sortResults = (players, key, sortOrder) => {
   return players.sort((player1, player2) => {
-    let filterOn1 = player1[key];
-    let filterOn2 = player2[key];
-
-    if (filterOn1 && typeof filterOn1 === "string") {
-      if (filterOn1.includes("T")) {
-        filterOn1 = filterOn1.replace("T", "");
-      }
-      if (filterOn1.includes(",")) {
-        filterOn1 = filterOn1.replace(",", "");
-      }
-    }
-    if (filterOn2 && typeof filterOn2 === "string") {
-      if (filterOn2.includes("T")) {
-        filterOn2 = filterOn2.split("T")[0];
-      }
-      if (filterOn2.includes(",")) {
-        filterOn2 = filterOn2.replace(",", "");
-      }
-    }
+    const filterOn1 = formatCellData(player1[key]);
+    const filterOn2 = formatCellData(player2[key]);
 
     if (sortOrder === 0) {
       return Number(filterOn1) <= Number(filterOn2);
@@ -54,6 +32,42 @@ function sortResults(players, key, sortOrder) {
   });
 }
 
+const PlayerTable = styled.table`
+  border-collapse: collapse;
+  width: 100%;
+`;
+
+const SortCell = styled.th`
+  cursor: ${props => (props.clickable ? "pointer" : "default")};
+  text-align: left;
+  padding: 12px;
+  font-weight: 600;
+  border-radius: 25px;
+  transition: color 0.1s ease-in-out;
+  ${props => props.active && "color: white;"} :hover {
+    color: white;
+  }
+`;
+
+SortCell.defaultProps = {
+  clickable: true
+};
+
+const TableRow = styled.tr`
+  color: white;
+  transition: color 0.1s ease-in-out;
+  cursor: pointer;
+
+  :hover {
+    color: rgba(249, 249, 249, 0.65);
+  }
+`;
+
+const TableCell = styled.td`
+  border-bottom: solid 1px #1e1f21;
+  padding: 16px;
+`;
+
 const PlayerList = ({ players }) =>
   players.map((player, i) => {
     const playerName = player["Player"];
@@ -61,26 +75,118 @@ const PlayerList = ({ players }) =>
     const longestRush = player["Lng"];
     const totalRushingTouchdowns = player["TD"];
     return (
-      <tr>
-        <td>{playerName}</td>
-        <td>{totalRushingYards}</td>
-        <td>{longestRush}</td>
-        <td>{totalRushingTouchdowns}</td>
-      </tr>
+      <TableRow data-testid="tableRow" key={playerName + i}>
+        <TableCell>{playerName}</TableCell>
+        <TableCell>{totalRushingYards}</TableCell>
+        <TableCell>{longestRush}</TableCell>
+        <TableCell>{totalRushingTouchdowns}</TableCell>
+      </TableRow>
     );
   });
 
-const SortCell = styled.th`
+const PageHeading = styled.h1`
+  max-width: 1024px;
+  margin: 0 auto;
+`;
+
+const DownloadButton = styled.button`
+  font-family: Roboto;
+  border-style: border-box;
+  background-color: #0078fd;
+  height: 32px;
+  border: none;
+  font-size: 14px;
+  color: #fff;
+  display: block;
   cursor: pointer;
+  text-align: center;
+  font-weight: 500;
+  line-height: 32px;
+  border-radius: 4px;
+  padding: 0 10px;
+  transition: background-color 0.2s ease-in-out;
+
+  :hover {
+    background-color: rgb(84, 135, 172);
+  }
+`;
+
+const PaginationButton = styled.button`
+  font-family: Roboto;
+  border-style: border-box;
+  background-color: white;
+  height: 32px;
+  border: none;
+  font-size: 14px;
+  color: black;
+  display: block;
+  cursor: pointer;
+  text-align: center;
+  font-weight: 500;
+  line-height: 32px;
+  border-radius: 4px;
+  padding: 0 10px;
+  transition: background-color 0.2s ease-in-out;
+
+  :hover {
+    background-color: rgba(249, 249, 249, 0.65);
+  }
+`;
+
+const Main = styled.main`
+  max-width: 1024px;
+  margin: 0 auto;
+`;
+
+const PaginationControls = styled.div`
+  display: flex;
+  width: 40%;
+  margin: 0 auto;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+`;
+
+const TableControls = styled.div`
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 16px 0;
+`;
+
+const PlayerSearchField = styled.input`
+  cursor: auto;
+  box-sizing: border-box;
+  height: 36px;
+  width: 200px;
+  background-color: rgb(255, 255, 255);
+  color: rgb(0, 0, 0);
+  font-size: 16px;
+  line-height: 16px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #0078fd;
+  border-image: initial;
+  border-radius: 4px;
+  padding: 8px;
+  margin: 4px 0px;
+  letter-spacing: normal;
+  word-spacing: normal;
+  text-transform: none;
+  text-indent: 0px;
+  text-shadow: none;
+  display: inline-block;
+  text-align: start;
 `;
 
 function App() {
-  const [playerSearch, setPS] = React.useState("");
   const [page, setPage] = React.useState(1);
   const [maxPage, setMaxPage] = React.useState(0);
   const [entries, setEntries] = React.useState(10);
+  const [playerSearch, setPS] = React.useState("");
   const debouncedPS = useDebounce(playerSearch, 750);
-  let [results, setResults] = React.useState([]);
+  const [results, setResults] = React.useState([]);
   const [filterKey, setFilterKey] = React.useState("");
   // 0 for ascending, 1 descending
   const [sortOrder, setSortOrder] = React.useState(0);
@@ -118,124 +224,93 @@ function App() {
     if (sortOrder === 1) return "v";
   }
 
-  function prepareCSV(data) {
-    const keys = Object.keys(data[0]);
-    const columnDelimiter = ",";
-    const lineDelimiter = "\n";
-
-    if (data === null || !data.length) {
-      return null;
-    }
-
-    let result = "";
-    result += keys.join(columnDelimiter);
-    result += lineDelimiter;
-
-    data.forEach(item => {
-      let counter = 0;
-      keys.forEach(key => {
-        if (counter > 0) {
-          result += columnDelimiter;
-        }
-
-        if (
-          item[key] &&
-          typeof item[key] === "string" &&
-          item[key].includes(",")
-        ) {
-          result += item[key].replace(",", "");
-        } else {
-          result += item[key];
-        }
-        counter++;
-      });
-      result += lineDelimiter;
-    });
-
-    return result;
-  }
-
-  function exportCSV(data) {
-    const csvData = "data:text/csv;charset=utf-8," + prepareCSV(data);
-    const encodedUri = encodeURI(csvData);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "NFL Rushing Stats.csv");
-    document.body.appendChild(link);
-    link.click();
-  }
-
-  results = sortResults(results, filterKey, sortOrder);
+  const sortedResults = sortResults(results, filterKey, sortOrder);
 
   return (
     <>
-      <div
-        style={{
-          display: "flex",
-          width: "100%",
-          justifyContent: "space-between"
-        }}
-      >
-        <button onClick={() => exportCSV(results)}>Download CSV</button>
-        <span>
-          <label htmlFor="Entries">Entries Showing</label>
-          <select
-            id="Entries"
-            defaultValue={10}
-            onChange={e => setEntries(e.target.value)}
+      <header style={{ backgroundColor: "#1e1f21", padding: '24px 0'}}>
+        <PageHeading>NFL Rushing Stats</PageHeading>
+      </header>
+      <Main>
+        <TableControls>
+          <PlayerSearchField
+            placeholder="Search Players"
+            value={playerSearch}
+            onChange={e => setPS(e.target.value)}
+          />
+          <span>
+            <label style={{ paddingRight: 12 }} htmlFor="Entries">
+              Entries Showing
+            </label>
+            <select
+              id="Entries"
+              defaultValue={10}
+              onChange={e => setEntries(e.target.value)}
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={75}>75</option>
+              <option value={100}>100</option>
+            </select>
+          </span>
+          <DownloadButton
+            disabled={sortedResults.length === 0}
+            onClick={() => {
+              const playerCSV = new CSV(sortedResults, "NFL Rushing Stats");
+              playerCSV.generate();
+              playerCSV.download();
+            }}
           >
-            <option value={10}>10</option>
-            <option value={25}>25</option>
-            <option value={50}>50</option>
-            <option value={75}>75</option>
-            <option value={100}>100</option>
-          </select>
-        </span>
-        <input
-          placeholder="Search Players"
-          value={playerSearch}
-          onChange={e => setPS(e.target.value)}
-        />
-      </div>
-      <table
-        class="table table-striped table-bordered"
-        style={{ width: "100%" }}
-      >
-        <thead>
-          <tr>
-            <th>Player</th>
-            <SortCell onClick={() => updatePlayerSort("Yds")}>
-              Total Rushing Yards {showSortOrder("Yds")}
-            </SortCell>
-            <SortCell onClick={() => updatePlayerSort("Lng")}>
-              Longest Rush {showSortOrder("Lng")}
-            </SortCell>
-            <SortCell onClick={() => updatePlayerSort("TD")}>
-              Total Rushing Touchdowns {showSortOrder("TD")}
-            </SortCell>
-          </tr>
-        </thead>
-        <tbody>
-          <PlayerList players={results} />
-        </tbody>
-      </table>
-      <div style={{ display: "flex", width: "100%", justifyContent: "center" }}>
-        <span>
-          <button
+            Download CSV
+          </DownloadButton>
+        </TableControls>
+        <PlayerTable>
+          <thead>
+            <tr>
+              <SortCell clickable={false}>Player</SortCell>
+              <SortCell
+                active={filterKey === "Yds"}
+                onClick={() => updatePlayerSort("Yds")}
+              >
+                Total Rushing Yards {showSortOrder("Yds")}
+              </SortCell>
+              <SortCell
+                active={filterKey === "Lng"}
+                onClick={() => updatePlayerSort("Lng")}
+              >
+                Longest Rush {showSortOrder("Lng")}
+              </SortCell>
+              <SortCell
+                active={filterKey === "Td"}
+                onClick={() => updatePlayerSort("TD")}
+              >
+                Total Rushing Touchdowns {showSortOrder("TD")}
+              </SortCell>
+            </tr>
+          </thead>
+          <tbody>
+            <PlayerList players={sortedResults} />
+          </tbody>
+        </PlayerTable>
+        <PaginationControls>
+          {/* <span> */}
+          <PaginationButton
             disabled={page === 1}
-            onClick={() => page !== 1 && setPage(page - 1)}
+            onClick={() => page !== 1 && setPage(Number(page - 1))}
           >
             Previous
-          </button>
+          </PaginationButton>
           <span>Page {page}</span>
-          <button
-            disabled={page === maxPage}
-            onClick={() => page < maxPage && setPage(page + 1)}
+          <PaginationButton
+            disabled={page === maxPage || sortedResults.length === 0}
+            onClick={() => page < maxPage && setPage(Number(page + 1))}
           >
             Next
-          </button>
-        </span>
-      </div>
+          </PaginationButton>
+          {/* </span> */}
+        </PaginationControls>
+      </Main>
     </>
   );
 }
