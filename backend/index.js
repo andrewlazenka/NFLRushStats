@@ -20,8 +20,6 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 app.use('/', routes);
 
-app.listen(8000, () =>
-  console.log(`Application is now running on port 8000`)
-)
+app.listen(8000)
 
 module.exports = app
