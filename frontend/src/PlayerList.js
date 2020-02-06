@@ -1,5 +1,6 @@
 import React from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
+import { navigate } from "@reach/router";
 
 import CSV from "./CSV";
 import useDebounce from "./useDebounce";
@@ -20,7 +21,7 @@ const SortCell = styled.th`
   border-radius: 25px;
   transition: color 0.1s ease-in-out;
   ${props => props.active && "color: white;"} :hover {
-    color: white;
+    ${props => props.hoverable && "color: white;"}
   }
 `;
 
@@ -43,9 +44,15 @@ const TableCell = styled.td`
   padding: 16px;
 `;
 
-const PageHeading = styled.h1`
+const PageHeadingWrapper = styled.div`
   max-width: 1024px;
   margin: 0 auto;
+`
+
+const PageHeading = styled.h1`
+  padding: 0 16px;
+  width: fit-content;
+  margin: 0;
 `;
 
 const DownloadButton = styled.button`
@@ -108,10 +115,15 @@ const PaginationControls = styled.div`
 
 const TableControls = styled.div`
   display: flex;
-  width: 100%;
+  width: calc(100% - 32px);
   justify-content: space-between;
   align-items: baseline;
-  padding: 16px 0;
+  padding: 16px;
+
+  @media only screen and (max-width: 550px) {
+    flex-direction: column-reverse;
+    height: 150px;
+  }
 `;
 
 const PlayerSearchField = styled.input`
@@ -170,7 +182,11 @@ const PlayerList = ({ players }) =>
     const longestRush = player["Lng"];
     const totalRushingTouchdowns = player["TD"];
     return (
-      <TableRow data-testid="tableRow" key={playerName + i}>
+      <TableRow
+        onClick={() => navigate(`/player/${playerName}`)}
+        data-testid="tableRow"
+        key={playerName + i}
+      >
         <TableCell>{playerName}</TableCell>
         <TableCell>{totalRushingYards}</TableCell>
         <TableCell>{longestRush}</TableCell>
@@ -195,7 +211,7 @@ function App() {
   const disableNext =
     page === maxPage ||
     sortedResults.length === 0 ||
-    sortedResults.length < maxPage;
+    sortedResults.length < entries;
 
   React.useEffect(() => {
     async function searchRequest() {
@@ -232,7 +248,9 @@ function App() {
   return (
     <>
       <header style={{ backgroundColor: "#1e1f21", padding: "24px 0" }}>
-        <PageHeading>NFL Rushing Stats</PageHeading>
+        <PageHeadingWrapper>
+          <PageHeading>NFL Rushing Stats</PageHeading>
+        </PageHeadingWrapper>
       </header>
       <Main>
         <TableControls>
@@ -273,18 +291,21 @@ function App() {
             <tr>
               <SortCell clickable={false}>Player</SortCell>
               <SortCell
+                hoverable
                 active={filterKey === "Yds"}
                 onClick={() => updatePlayerSort("Yds")}
               >
                 Total Rushing Yards {showSortOrder("Yds")}
               </SortCell>
               <SortCell
+                hoverable
                 active={filterKey === "Lng"}
                 onClick={() => updatePlayerSort("Lng")}
               >
                 Longest Rush {showSortOrder("Lng")}
               </SortCell>
               <SortCell
+                hoverable
                 active={filterKey === "Td"}
                 onClick={() => updatePlayerSort("TD")}
               >

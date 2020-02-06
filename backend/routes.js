@@ -48,4 +48,17 @@ routes.get("/rushing", async (req, res) => {
   res.json({ page: Number(page), maxPage, players });
 });
 
+routes.get("/player", async (req, res) => {
+  const { name } = req.query;
+
+  if (!name) {
+    res.status(500).json({ message: "No player name given" });
+    return;
+  }
+
+  const player = rushing.find(pl => pl.Player === name)
+
+  res.json(player);
+});
+
 module.exports = routes;
