@@ -31,20 +31,19 @@ routes.get("/rushing", async (req, res) => {
   let { entries, page = 1, search } = req.query;
   let players = rushing;
 
-  const maxPage = Math.ceil(players.length / entries);
-
   if (page <= 0) {
     res.status(500).json({ message: "Invalid page param passed" });
     return;
   }
 
-  if (page > maxPage) page = maxPage;
-
   if (search) {
     players = searchPlayers(search);
-  } else {
-    players = paginate({ data: players, entries, page })
   }
+
+  const maxPage = Math.ceil(players.length / entries);
+  if (page > maxPage) page = maxPage;
+
+  players = paginate({ data: players, entries, page })
 
   res.json({ page: Number(page), maxPage, players });
 });

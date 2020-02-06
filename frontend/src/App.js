@@ -7,31 +7,6 @@ import { fetchPlayers } from "./api";
 
 import "./index.css";
 
-function formatCellData(cell) {
-  let cellData = cell;
-  if (cellData && typeof cellData === "string") {
-    if (cellData.includes("T")) {
-      cellData = cellData.replace("T", "");
-    }
-    if (cellData.includes(",")) {
-      cellData = cellData.replace(",", "");
-    }
-  }
-  return cellData;
-}
-
-const sortResults = (players, key, sortOrder) => {
-  return players.sort((player1, player2) => {
-    const filterOn1 = formatCellData(player1[key]);
-    const filterOn2 = formatCellData(player2[key]);
-
-    if (sortOrder === 0) {
-      return Number(filterOn1) <= Number(filterOn2);
-    }
-    return Number(filterOn1) > Number(filterOn2);
-  });
-}
-
 const PlayerTable = styled.table`
   border-collapse: collapse;
   width: 100%;
@@ -67,22 +42,6 @@ const TableCell = styled.td`
   border-bottom: solid 1px #1e1f21;
   padding: 16px;
 `;
-
-const PlayerList = ({ players }) =>
-  players.map((player, i) => {
-    const playerName = player["Player"];
-    const totalRushingYards = player["Yds"];
-    const longestRush = player["Lng"];
-    const totalRushingTouchdowns = player["TD"];
-    return (
-      <TableRow data-testid="tableRow" key={playerName + i}>
-        <TableCell>{playerName}</TableCell>
-        <TableCell>{totalRushingYards}</TableCell>
-        <TableCell>{longestRush}</TableCell>
-        <TableCell>{totalRushingTouchdowns}</TableCell>
-      </TableRow>
-    );
-  });
 
 const PageHeading = styled.h1`
   max-width: 1024px;
@@ -180,6 +139,46 @@ const PlayerSearchField = styled.input`
   text-align: start;
 `;
 
+function formatCellData(cell) {
+  let cellData = cell;
+  if (cellData && typeof cellData === "string") {
+    if (cellData.includes("T")) {
+      cellData = cellData.replace("T", "");
+    }
+    if (cellData.includes(",")) {
+      cellData = cellData.replace(",", "");
+    }
+  }
+  return cellData;
+}
+
+const sortResults = (players, key, sortOrder) =>
+  players.sort((player1, player2) => {
+    const filterOn1 = formatCellData(player1[key]);
+    const filterOn2 = formatCellData(player2[key]);
+
+    if (sortOrder === 0) {
+      return Number(filterOn1) <= Number(filterOn2) ? 1 : -1;
+    }
+    return Number(filterOn1) > Number(filterOn2) ? 1 : -1;
+  });
+
+const PlayerList = ({ players }) =>
+  players.map((player, i) => {
+    const playerName = player["Player"];
+    const totalRushingYards = player["Yds"];
+    const longestRush = player["Lng"];
+    const totalRushingTouchdowns = player["TD"];
+    return (
+      <TableRow data-testid="tableRow" key={playerName + i}>
+        <TableCell>{playerName}</TableCell>
+        <TableCell>{totalRushingYards}</TableCell>
+        <TableCell>{longestRush}</TableCell>
+        <TableCell>{totalRushingTouchdowns}</TableCell>
+      </TableRow>
+    );
+  });
+
 function App() {
   const [page, setPage] = React.useState(1);
   const [maxPage, setMaxPage] = React.useState(0);
@@ -190,6 +189,13 @@ function App() {
   const [filterKey, setFilterKey] = React.useState("");
   // 0 for ascending, 1 descending
   const [sortOrder, setSortOrder] = React.useState(0);
+
+  const sortedResults = sortResults(results, filterKey, sortOrder);
+
+  const disableNext =
+    page === maxPage ||
+    sortedResults.length === 0 ||
+    sortedResults.length < maxPage;
 
   React.useEffect(() => {
     async function searchRequest() {
@@ -202,7 +208,6 @@ function App() {
       setMaxPage(Number(data.maxPage));
       setPage(Number(data.page));
     }
-
     searchRequest();
   }, [debouncedPS, page, entries]);
 
@@ -224,11 +229,9 @@ function App() {
     if (sortOrder === 1) return "v";
   }
 
-  const sortedResults = sortResults(results, filterKey, sortOrder);
-
   return (
     <>
-      <header style={{ backgroundColor: "#1e1f21", padding: '24px 0'}}>
+      <header style={{ backgroundColor: "#1e1f21", padding: "24px 0" }}>
         <PageHeading>NFL Rushing Stats</PageHeading>
       </header>
       <Main>
@@ -294,7 +297,6 @@ function App() {
           </tbody>
         </PlayerTable>
         <PaginationControls>
-          {/* <span> */}
           <PaginationButton
             disabled={page === 1}
             onClick={() => page !== 1 && setPage(Number(page - 1))}
@@ -303,12 +305,11 @@ function App() {
           </PaginationButton>
           <span>Page {page}</span>
           <PaginationButton
-            disabled={page === maxPage || sortedResults.length === 0}
+            disabled={disableNext}
             onClick={() => page < maxPage && setPage(Number(page + 1))}
           >
             Next
           </PaginationButton>
-          {/* </span> */}
         </PaginationControls>
       </Main>
     </>
