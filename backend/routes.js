@@ -40,7 +40,7 @@ routes.get("/rushing", async (req, res) => {
     players = searchPlayers(search);
   }
 
-  const maxPage = Math.ceil(players.length / entries);
+  const maxPage = Math.ceil(players.length / entries) || 1;
   if (page > maxPage) page = maxPage;
 
   players = paginate({ data: players, entries, page });

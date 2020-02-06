@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { navigate } from "@reach/router";
 
 import CSV from "../modules/CSV";
-import useDebounce from "../useDebounce";
+import useDebounce from "../hooks/useDebounce";
 import { fetchPlayers } from "../modules/api";
 import Header from "../components/Header";
 import Main from "../components/Main";
