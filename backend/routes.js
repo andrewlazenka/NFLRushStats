@@ -11,7 +11,7 @@ routes.get("/health-check", async (req, res) => {
 
 function searchPlayers(search) {
   const fuse = new Fuse(rushing, {
-    keys: ["Player", "Yds", "Lng", "TD"],
+    keys: ["Player", "Pos", "Team", "Yds", "Lng", "TD"],
     threshold: 0.3
   });
   return fuse.search(search);

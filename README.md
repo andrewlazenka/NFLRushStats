@@ -34,9 +34,9 @@ you will see a data table with a variety of different controls.
 #### Search
 
 The search field can be useful for finding records in which you already know some
-information you'd like to look for. The table is indexed on the four fields seen
-in the browser, so feel free to search for a player's name, total rushing yards,
-longest rush, or total rushing touchdowns.
+information you'd like to look for. The table is indexed on the six fields seen
+in the browser, so feel free to search for a player's name, team, position,
+total rushing yards, longest rush, or total rushing touchdowns.
 
 This feature makes an api request to the backend process which will run the search
 query using a package called [Fuse.js](https://fusejs.io/). The input field uses
