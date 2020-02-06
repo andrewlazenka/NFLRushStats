@@ -51,7 +51,7 @@ class CSV {
     this.link = document.createElement("a");
     this.link.setAttribute("href", encodedUri);
     this.link.setAttribute("download", this.fileName + '.csv');
-    this.link.textContent = "CSV Download Link"
+    this.link.setAttribute('data-testid', "CSV Download Link")
     document.body.appendChild(this.link);
     this.link.click();
   }

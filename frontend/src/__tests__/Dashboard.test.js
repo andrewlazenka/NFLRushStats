@@ -561,7 +561,7 @@ it("generates a CSV file from table data", async () => {
   act(() => {
     fireEvent.click(container.getByText(/Download CSV/));
   });
-  expect(container.getByText(/CSV Download Link/)).toBeInTheDocument();
+  expect(container.getByTestId(/CSV Download Link/)).toBeInTheDocument();
 });
 
 it("searches dataset", async () => {
