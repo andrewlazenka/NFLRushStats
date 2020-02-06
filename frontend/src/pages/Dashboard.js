@@ -5,27 +5,13 @@ import { navigate } from "@reach/router";
 import CSV from "../modules/CSV";
 import useDebounce from "../useDebounce";
 import { fetchPlayers } from "../modules/api";
+import Header from "../components/Header";
+import Main from "../components/Main";
 
 const PlayerTable = styled.table`
   border-collapse: collapse;
   width: 100%;
 `;
-
-const SortCell = styled.th`
-  cursor: ${props => (props.clickable ? "pointer" : "default")};
-  text-align: left;
-  padding: 12px;
-  font-weight: 600;
-  border-radius: 25px;
-  transition: color 0.1s ease-in-out;
-  ${props => props.active && "color: white;"} :hover {
-    ${props => props.hoverable && "color: white;"}
-  }
-`;
-
-SortCell.defaultProps = {
-  clickable: true
-};
 
 const TableRow = styled.tr`
   color: white;
@@ -83,16 +69,21 @@ const TableCell = styled.td`
   }
 `;
 
-const PageHeadingWrapper = styled.div`
-  max-width: 1024px;
-  margin: 0 auto;
+const SortCell = styled.th`
+  cursor: ${props => (props.clickable ? "pointer" : "default")};
+  text-align: left;
+  padding: 12px;
+  font-weight: 600;
+  border-radius: 25px;
+  transition: color 0.1s ease-in-out;
+  ${props => props.active && "color: white;"} :hover {
+    ${props => props.hoverable && "color: white;"}
+  }
 `;
 
-const PageHeading = styled.h1`
-  padding: 0 16px;
-  width: fit-content;
-  margin: 0;
-`;
+SortCell.defaultProps = {
+  clickable: true
+};
 
 const DownloadButton = styled.button`
   font-family: Roboto;
@@ -136,11 +127,6 @@ const PaginationButton = styled.button`
   :hover {
     background-color: rgba(249, 249, 249, 0.65);
   }
-`;
-
-const Main = styled.main`
-  max-width: 1024px;
-  margin: 0 auto;
 `;
 
 const PaginationControls = styled.div`
@@ -216,7 +202,7 @@ const sortResults = (players, key, sortOrder) =>
     return Number(filterOn1) > Number(filterOn2) ? 1 : -1;
   });
 
-function App() {
+function Dashboard() {
   const [page, setPage] = React.useState(1);
   const [maxPage, setMaxPage] = React.useState(0);
   const [entries, setEntries] = React.useState(10);
@@ -283,11 +269,7 @@ function App() {
 
   return (
     <>
-      <header style={{ backgroundColor: "#1e1f21", padding: "24px 0" }}>
-        <PageHeadingWrapper>
-          <PageHeading>NFL Rushing Stats</PageHeading>
-        </PageHeadingWrapper>
-      </header>
+      <Header />
       <Main>
         <TableControls>
           <PlayerSearchField
@@ -399,4 +381,4 @@ function App() {
   );
 }
 
-export default App;
+export default Dashboard;

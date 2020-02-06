@@ -1,20 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-import { Link } from "@reach/router";
 
 import { getPlayer } from "../modules/api";
-
-const PageHeading = styled.h1`
-  max-width: 1024px;
-  padding: 0 16px;
-  width: fit-content;
-  margin: 0;
-`;
-
-const Main = styled.main`
-  max-width: 1024px;
-  margin: 0 auto;
-`;
+import Header from '../components/Header'
+import Main from '../components/Main'
 
 const BlockWrapper = styled.div`
   display: flex;
@@ -45,16 +34,6 @@ const PlayerMainInfo = styled.div`
   padding: 0 16px;
 `;
 
-const HomeLink = styled(Link)`
-  text-decoration: none;
-  color: rgba(249, 249, 249, 0.65);
-  transition: color 0.2s ease-in-out;
-
-  :hover {
-    color: white;
-  }
-`
-
 function Player({ playerName }) {
   const [player, setPlayer] = React.useState({});
   const [team, setTeam] = React.useState("");
@@ -79,11 +58,7 @@ function Player({ playerName }) {
 
   return (
     <>
-      <header style={{ backgroundColor: "#1e1f21", padding: "24px 0" }}>
-        <HomeLink to="/">
-          <PageHeading>NFL Rushing Stats</PageHeading>
-        </HomeLink>
-      </header>
+    <Header />
       <Main>
         <PlayerMainInfo>
           <h2>{playerName}</h2>
