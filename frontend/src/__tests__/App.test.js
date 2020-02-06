@@ -5,7 +5,7 @@ import {
   cleanup
 } from "@testing-library/react";
 import App from "../App";
-const api = require("../api");
+const api = require("../modules/api");
 
 afterEach(cleanup);
 

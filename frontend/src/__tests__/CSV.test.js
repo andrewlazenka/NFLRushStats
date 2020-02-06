@@ -1,5 +1,5 @@
 import { cleanup } from "@testing-library/react";
-import CSV from "../CSV";
+import CSV from "../modules/CSV";
 
 afterEach(cleanup);
 

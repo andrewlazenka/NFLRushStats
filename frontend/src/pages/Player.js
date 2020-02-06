@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { Link } from "@reach/router";
 
-import { getPlayer } from "./api";
+import { getPlayer } from "../modules/api";
 
 const PageHeading = styled.h1`
   max-width: 1024px;
@@ -61,11 +61,14 @@ function Player({ playerName }) {
   const [position, setPosition] = React.useState("");
 
   React.useEffect(() => {
+    // fetches player data on page mount based on url param
     async function findPlayer() {
       const response = await getPlayer(playerName);
       setTeam(response.data.Team);
       setPosition(response.data.Pos);
 
+      // these deletes ensure the values displayed in the main information section
+      // of the page aren't displayed as stat items
       delete response.data.Player;
       delete response.data.Team;
       delete response.data.Pos;

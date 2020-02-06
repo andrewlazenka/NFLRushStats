@@ -1,9 +1,8 @@
 import React from "react";
 import { render, act, cleanup } from "@testing-library/react";
-const router = require("@reach/router");
 
-import Player from "../Player";
-const api = require("../api");
+import Player from "../pages/Player";
+const api = require("../modules/api");
 
 afterEach(cleanup);
 

@@ -2,11 +2,9 @@ import React from "react";
 import styled from "styled-components";
 import { navigate } from "@reach/router";
 
-import CSV from "./CSV";
-import useDebounce from "./useDebounce";
-import { fetchPlayers } from "./api";
-
-import "./index.css";
+import CSV from "../modules/CSV";
+import useDebounce from "../useDebounce";
+import { fetchPlayers } from "../modules/api";
 
 const PlayerTable = styled.table`
   border-collapse: collapse;
@@ -47,7 +45,7 @@ const TableCell = styled.td`
 const PageHeadingWrapper = styled.div`
   max-width: 1024px;
   margin: 0 auto;
-`
+`;
 
 const PageHeading = styled.h1`
   padding: 0 16px;
@@ -154,9 +152,11 @@ const PlayerSearchField = styled.input`
 function formatCellData(cell) {
   let cellData = cell;
   if (cellData && typeof cellData === "string") {
+    // strips T values out of cells for sorting calculations
     if (cellData.includes("T")) {
       cellData = cellData.replace("T", "");
     }
+    // strips commas out of cells for sorting calculations
     if (cellData.includes(",")) {
       cellData = cellData.replace(",", "");
     }
@@ -200,6 +200,8 @@ function App() {
   const [maxPage, setMaxPage] = React.useState(0);
   const [entries, setEntries] = React.useState(10);
   const [playerSearch, setPS] = React.useState("");
+  // uses debounce hook to avoid extra api calls when user is typing in the
+  // search field
   const debouncedPS = useDebounce(playerSearch, 750);
   const [results, setResults] = React.useState([]);
   const [filterKey, setFilterKey] = React.useState("");
@@ -214,6 +216,8 @@ function App() {
     sortedResults.length < entries;
 
   React.useEffect(() => {
+    // makes api request for data when a search is made, a page change is
+    // requested, or the number of entries changes
     async function searchRequest() {
       const { data } = await fetchPlayers({
         page,
@@ -227,6 +231,8 @@ function App() {
     searchRequest();
   }, [debouncedPS, page, entries]);
 
+  // flip flop between ascending and descending sort
+  // sets the active column being sorted on
   function updatePlayerSort(key) {
     if (key === filterKey) {
       if (sortOrder === 0) {
@@ -241,6 +247,8 @@ function App() {
     setFilterKey(key);
   }
 
+  // appears in column headers
+  // shows whether column is being sorted ascending or descending
   function showSortOrder(key) {
     if (filterKey !== key) {
       return null;

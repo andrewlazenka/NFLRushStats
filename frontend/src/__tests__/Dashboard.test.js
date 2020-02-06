@@ -1,7 +1,7 @@
 import React from "react";
 import { render, fireEvent, act, cleanup } from "@testing-library/react";
-import PlayerList from "../PlayerList";
-const api = require("../api");
+import Dashboard from "../pages/Dashboard";
+const api = require("../modules/api");
 const router = require("@reach/router");
 
 afterEach(cleanup);
@@ -451,7 +451,7 @@ let container;
 it("renders the route", async () => {
   mockFetchWithNoData();
   await act(async () => {
-    container = render(<PlayerList />);
+    container = render(<Dashboard />);
   });
 
   expect(container.getByText(/NFL Rushing Stats/)).toBeInTheDocument();
@@ -460,7 +460,7 @@ it("renders the route", async () => {
 it("cannot click the download button when data has not loaded", async () => {
   mockFetchWithNoData();
   await act(async () => {
-    container = render(<PlayerList />);
+    container = render(<Dashboard />);
   });
 
   const csvButton = container.getByText(/Download CSV/);
@@ -472,7 +472,7 @@ it("cannot click the download button when data has not loaded", async () => {
 it("cannot click the next page button when data has not loaded", async () => {
   mockFetchWithNoData();
   await act(async () => {
-    container = render(<PlayerList />);
+    container = render(<Dashboard />);
   });
 
   const nextPageButton = container.getByText(/Next/);
@@ -484,21 +484,21 @@ it("cannot click the next page button when data has not loaded", async () => {
 it("sorts table rows asc and desc on total rushing yards", async () => {
   mockFetchWithData();
   await act(async () => {
-    container = render(<PlayerList />);
+    container = render(<Dashboard />);
   });
 
   const colHeader = container.getByTestId(/YdsCol/);
-  await act(async () => {
+  act(() => {
     fireEvent.click(colHeader);
   });
   container.getByText(/Total Rushing Yards \^/);
 
-  await act(async () => {
+  act(() => {
     fireEvent.click(colHeader);
   });
   container.getByText(/Total Rushing Yards v/);
 
-  await act(async () => {
+  act(() => {
     fireEvent.click(colHeader);
   });
   container.getByText(/Total Rushing Yards \^/);
@@ -507,21 +507,21 @@ it("sorts table rows asc and desc on total rushing yards", async () => {
 it("sorts table rows asc and desc on longest rush", async () => {
   mockFetchWithData();
   await act(async () => {
-    container = render(<PlayerList />);
+    container = render(<Dashboard />);
   });
 
   const colHeader = container.getByTestId(/LngCol/);
-  await act(async () => {
+  act(() => {
     fireEvent.click(colHeader);
   });
   container.getByText(/Longest Rush \^/);
 
-  await act(() => {
+  act(() => {
     fireEvent.click(colHeader);
   });
   container.getByText(/Longest Rush v/);
 
-  await act(async () => {
+  act(() => {
     fireEvent.click(colHeader);
   });
   container.getByText(/Longest Rush \^/);
@@ -530,22 +530,22 @@ it("sorts table rows asc and desc on longest rush", async () => {
 it("sorts table rows asc and desc on total rushing touchdowns", async () => {
   mockFetchWithData();
   await act(async () => {
-    container = render(<PlayerList />);
+    container = render(<Dashboard />);
   });
 
   const colHeader = container.getByTestId(/TdCol/);
   expect(colHeader).toBeInTheDocument();
-  await act(async () => {
+  act(() => {
     fireEvent.click(colHeader);
   });
   container.getByText(/Total Rushing Touchdowns \^/);
 
-  await act(async () => {
+  act(() => {
     fireEvent.click(colHeader);
   });
   container.getByText(/Total Rushing Touchdowns v/);
 
-  await act(async () => {
+  act(() => {
     fireEvent.click(colHeader);
   });
   container.getByText(/Total Rushing Touchdowns \^/);
@@ -554,11 +554,11 @@ it("sorts table rows asc and desc on total rushing touchdowns", async () => {
 it("generates a CSV file from table data", async () => {
   mockFetchWithData();
   await act(async () => {
-    container = render(<PlayerList />);
+    container = render(<Dashboard />);
   });
 
   expect(api.fetchPlayers).toHaveBeenCalled();
-  await act(async () => {
+  act(() => {
     fireEvent.click(container.getByText(/Download CSV/));
   });
   expect(container.getByText(/CSV Download Link/)).toBeInTheDocument();
@@ -568,7 +568,7 @@ it("searches dataset", async () => {
   jest.useFakeTimers();
   mockFetchWithData();
   await act(async () => {
-    container = render(<PlayerList />);
+    container = render(<Dashboard />);
   });
   expect(api.fetchPlayers).toHaveBeenCalled();
 
@@ -587,7 +587,7 @@ it("searches dataset", async () => {
 it("changes number of entries", async () => {
   mockFetchWithData();
   await act(async () => {
-    container = render(<PlayerList />);
+    container = render(<Dashboard />);
   });
 
   const selectField = container.getByLabelText(/Entries Showing/);
@@ -601,7 +601,7 @@ it("changes number of entries", async () => {
 it("changes to the next page and back again", async () => {
   mockFetchWithData();
   await act(async () => {
-    container = render(<PlayerList />);
+    container = render(<Dashboard />);
   });
 
   const nextButton = container.getByText(/Next/);
@@ -624,12 +624,12 @@ it("changes to the next page and back again", async () => {
 it("changes page after a click on a table row", async () => {
   mockFetchWithData();
   await act(async () => {
-    container = render(<PlayerList />);
+    container = render(<Dashboard />);
   });
 
   const tableRow = container.getAllByTestId(/tableRow/)[0];
   router.navigate = jest.fn();
-  await act(async () => {
+  act(() => {
     fireEvent.click(tableRow);
   });
 

@@ -3,12 +3,12 @@ import { Router, Redirect } from "@reach/router";
 
 import "./index.css";
 
-import PlayerList from "./PlayerList";
-import Player from "./Player";
+import Dashboard from "./pages/Dashboard";
+import Player from "./pages/Player";
 
 const App = () => (
   <Router>
-    <PlayerList path="/" />
+    <Dashboard path="/" />
     <Redirect from='player' to='/' noThrow />
     <Player path="/player/:playerName" />
   </Router>
