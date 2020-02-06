@@ -229,8 +229,12 @@ function App() {
 
   function updatePlayerSort(key) {
     if (key === filterKey) {
-      if (sortOrder === 0) setSortOrder(1);
-      if (sortOrder === 1) setSortOrder(0);
+      if (sortOrder === 0) {
+        setSortOrder(1);
+      }
+      if (sortOrder === 1) {
+        setSortOrder(0);
+      }
     } else {
       setSortOrder(0);
     }
@@ -241,8 +245,11 @@ function App() {
     if (filterKey !== key) {
       return null;
     }
-    if (sortOrder === 0) return "^";
-    if (sortOrder === 1) return "v";
+    if (sortOrder === 0) {
+      return "^";
+    } else if (sortOrder === 1) {
+      return "v";
+    }
   }
 
   return (
@@ -291,6 +298,7 @@ function App() {
             <tr>
               <SortCell clickable={false}>Player</SortCell>
               <SortCell
+                data-testid="YdsCol"
                 hoverable
                 active={filterKey === "Yds"}
                 onClick={() => updatePlayerSort("Yds")}
@@ -298,6 +306,7 @@ function App() {
                 Total Rushing Yards {showSortOrder("Yds")}
               </SortCell>
               <SortCell
+                data-testid="LngCol"
                 hoverable
                 active={filterKey === "Lng"}
                 onClick={() => updatePlayerSort("Lng")}
@@ -305,6 +314,7 @@ function App() {
                 Longest Rush {showSortOrder("Lng")}
               </SortCell>
               <SortCell
+                data-testid="TdCol"
                 hoverable
                 active={filterKey === "Td"}
                 onClick={() => updatePlayerSort("TD")}

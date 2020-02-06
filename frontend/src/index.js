@@ -1,18 +1,12 @@
 import React from "react";
 import { render } from "react-dom";
-import { Router } from "@reach/router";
 
-import "./index.css";
 import * as serviceWorker from "./serviceWorker";
 
-import PlayerList from "./PlayerList";
-import Player from "./Player";
+import App from "./App";
 
 render(
-  <Router>
-    <PlayerList path="/" />
-    <Player path="/player/:playerName" />
-  </Router>,
+  <App />,
   document.getElementById("root")
 );
 
