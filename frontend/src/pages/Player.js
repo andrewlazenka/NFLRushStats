@@ -87,9 +87,9 @@ function Player({ playerName }) {
       <Main>
         <PlayerMainInfo>
           <h2>{playerName}</h2>
-          <h3>
+          <h4>
             {team} · {position}
-          </h3>
+          </h4>
         </PlayerMainInfo>
         <hr />
         <BlockWrapper>

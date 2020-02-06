@@ -35,11 +35,52 @@ const TableRow = styled.tr`
   :hover {
     color: rgba(249, 249, 249, 0.65);
   }
+
+  @media only screen and (max-width: 600px) {
+    border: 1px solid #ccc;
+  }
 `;
 
 const TableCell = styled.td`
   border-bottom: solid 1px #1e1f21;
   padding: 16px;
+
+  @media only screen and (max-width: 600px) {
+    padding: 6px;
+    padding-left: 50%;
+    display: block;
+    border: none;
+    border-bottom: 1px solid #eee;
+    position: relative;
+
+    :before {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      width: 45%;
+      padding-right: 10px;
+      white-space: nowrap;
+    }
+
+    :nth-of-type(1):before {
+      content: "Player";
+    }
+    :nth-of-type(2):before {
+      content: "Team";
+    }
+    :nth-of-type(3):before {
+      content: "Position";
+    }
+    :nth-of-type(4):before {
+      content: "Total Rushing Yards";
+    }
+    :nth-of-type(5):before {
+      content: "Longest Rush";
+    }
+    :nth-of-type(6):before {
+      content: "Total Rushing Touchdowns";
+    }
+  }
 `;
 
 const PageHeadingWrapper = styled.div`
@@ -175,26 +216,6 @@ const sortResults = (players, key, sortOrder) =>
     return Number(filterOn1) > Number(filterOn2) ? 1 : -1;
   });
 
-const PlayerList = ({ players }) =>
-  players.map((player, i) => {
-    const playerName = player["Player"];
-    const totalRushingYards = player["Yds"];
-    const longestRush = player["Lng"];
-    const totalRushingTouchdowns = player["TD"];
-    return (
-      <TableRow
-        onClick={() => navigate(`/player/${playerName}`)}
-        data-testid="tableRow"
-        key={playerName + i}
-      >
-        <TableCell>{playerName}</TableCell>
-        <TableCell>{totalRushingYards}</TableCell>
-        <TableCell>{longestRush}</TableCell>
-        <TableCell>{totalRushingTouchdowns}</TableCell>
-      </TableRow>
-    );
-  });
-
 function App() {
   const [page, setPage] = React.useState(1);
   const [maxPage, setMaxPage] = React.useState(0);
@@ -305,6 +326,8 @@ function App() {
           <thead>
             <tr>
               <SortCell clickable={false}>Player</SortCell>
+              <SortCell clickable={false}>Team</SortCell>
+              <SortCell clickable={false}>Position</SortCell>
               <SortCell
                 data-testid="YdsCol"
                 hoverable
@@ -332,7 +355,28 @@ function App() {
             </tr>
           </thead>
           <tbody>
-            <PlayerList players={sortedResults} />
+            {sortedResults.map((player, i) => {
+              const playerName = player["Player"];
+              const totalRushingYards = player["Yds"];
+              const longestRush = player["Lng"];
+              const totalRushingTouchdowns = player["TD"];
+              const team = player["Team"];
+              const position = player["Pos"];
+              return (
+                <TableRow
+                  onClick={() => navigate(`/player/${playerName}`)}
+                  data-testid="tableRow"
+                  key={playerName + i}
+                >
+                  <TableCell>{playerName}</TableCell>
+                  <TableCell>{team}</TableCell>
+                  <TableCell>{position}</TableCell>
+                  <TableCell>{totalRushingYards}</TableCell>
+                  <TableCell>{longestRush}</TableCell>
+                  <TableCell>{totalRushingTouchdowns}</TableCell>
+                </TableRow>
+              );
+            })}
           </tbody>
         </PlayerTable>
         <PaginationControls>

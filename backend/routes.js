@@ -43,7 +43,16 @@ routes.get("/rushing", async (req, res) => {
   const maxPage = Math.ceil(players.length / entries);
   if (page > maxPage) page = maxPage;
 
-  players = paginate({ data: players, entries, page })
+  players = paginate({ data: players, entries, page });
+  // reduce data over the wire as most fields aren't needed
+  players = players.map(({ Player, Yds, Lng, TD, Pos, Team }) => ({
+    Player,
+    Yds,
+    Lng,
+    TD,
+    Pos,
+    Team
+  }));
 
   res.json({ page: Number(page), maxPage, players });
 });
@@ -56,7 +65,7 @@ routes.get("/player", async (req, res) => {
     return;
   }
 
-  const player = rushing.find(pl => pl.Player === name)
+  const player = rushing.find(pl => pl.Player === name);
 
   res.json(player);
 });
